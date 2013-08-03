@@ -7,11 +7,28 @@
 <style>
 
 #my{
+	cursor: crosshair;
 	position: absolute;
 	left: 185px;
 	top: 55px;
 	background-color: black;
 	border-radius: 20px;
+	}
+	
+#yo{
+	color: yellow;
+	}
+	
+#start{
+	z-index:1000;
+	color: black;
+	font-size: 50px;
+	font-family: cooper black;
+	background-color: white;
+	position: absolute;
+	left:500px;
+	top:300px;
+	border: 2px dotted red;
 	}
 
 </style>
@@ -19,6 +36,12 @@
 
 <body BGcolor="#202020">
 
+
+<div id="top" style="position: absolute; left: 270; top: 15; color: white; font-size: 20px;">
+RED-death ... GREEN-slow ... BLUE-fast ... WHITE-death(to confuse :P) ... YELLOW-waste chasing
+</div>
+
+<div id="start" onclick="dbeg();" style="display: block;">START GAME</div>
 <canvas id="my" width="1000" height="550" style="border: 5px solid #404040;">
 </canvas>
 <div id="yo"></div>
@@ -28,95 +51,214 @@
 
 <script>
 
-window.onload=obsta;
-
-var matrix=new Array(1000);
-for(var i=0;i<1000;i++)
-matrix[i]=new Array(550);
-
-var matrad=new Array(1000);
-for(var i=0;i<1000;i++)
-matrad[i]=new Array(550);
-
-var matspeed=new Array(1000);
-for(var i=0;i<1000;i++)
-matspeed[i]=new Array(550);
-
-for(var i=0;i<1000;i++)
-	for(var j=0;j<550;j++)
-		matrad[i][j]=0;
-
-for(var i=0;i<1000;i++)
-	for(var j=0;j<550;j++)
-		matrix[i][j]=0;
-		
-for(var i=0;i<1000;i++)
-	for(var j=0;j<550;j++)
-		matspeed[i][j]=0;		
-
-var evx=0;
-var evy=0;
-
-document.onmousemove=function(evt)
-	{
-    document.getElementById("yo").innerHTML=evt.clientX + ',' + evt.clientY;
-	}
-	
 var breakit=0;	
 var myc=document.getElementById("my");
 var ctx=myc.getContext("2d");
 var quick=0;
 
+function dbeg()
+	{
+	document.getElementById("start").style.display="none";
+	obsta();
+	}
+
+//window.onload=obsta;
+
+var matrix=new Array(500);
+for(var i=0;i<500;i++)
+matrix[i]=new Array(275);
+
+var matrad=new Array(500);
+for(var i=0;i<500;i++)
+matrad[i]=new Array(275);
+
+var matspeed=new Array(500);
+for(var i=0;i<500;i++)
+matspeed[i]=new Array(275);
+
+for(var i=0;i<500;i++)
+	for(var j=0;j<275;j++)
+		matrad[i][j]=0;
+
+for(var i=0;i<500;i++)
+	for(var j=0;j<275;j++)
+		matrix[i][j]=0;
+		
+for(var i=0;i<500;i++)
+	for(var j=0;j<275;j++)
+		matspeed[i][j]=0;		
+
+var evx=0;
+var evy=0;
+var prevx=0;
+var prevy=0;
+var oncep=0;
+var overg=0;
+var zob;
+var whichp=0;
+var whichps=0;
+var powertime=0;
+
+var pgreen=20;
+var pblue;
+var pwhite;
+var pyellow;
+
+document.onmousemove=function(evt)
+	{
+	if(whichps!=0)
+	{
+	ctx.clearRect(evx-5-1,evy-5-1,5*2+2,5*2+2);
+	evx=evt.clientX-180;
+	evy=evt.clientY-70;
+	if(evt.clientY>620 || evt.clientY<60 || evt.clientX>1200 || evt.clientX<180)
+		{
+		clearTimeout(zob);
+		overg=1;
+		}
+	
+    document.getElementById("yo").innerHTML=evt.clientX + ',' + evt.clientY;
+	ctx.beginPath();
+	ctx.arc(evx,evy,5,0,2*Math.PI);
+	ctx.fillStyle="orange";
+	ctx.fill();
+	ctx.closePath();
+	}
+	else
+	{
+	ctx.clearRect(evx-5-1,evy-5-1,5*2+2,5*2+2);
+	evx=evt.clientX-180;
+	evy=evt.clientY-70;
+	if(evt.clientY>620 || evt.clientY<60 || evt.clientX>1200 || evt.clientX<180)
+		{
+		clearTimeout(zob);
+		overg=1;
+		}
+	
+    document.getElementById("yo").innerHTML=evt.clientX + ',' + evt.clientY;
+	ctx.beginPath();
+	ctx.arc(evx,evy,5,0,2*Math.PI);
+	ctx.fillStyle="#33FFFF";
+	ctx.fill();
+	ctx.closePath();
+	}
+	/*if(oncep==0)
+		{
+		prevx=evx;
+		prevy=evy;
+		oncep++;
+		ctx.beginPath();
+		//ctx.moveTo(prevx,prevy);
+		}
+	ctx.moveTo(0,0);	
+	ctx.lineTo(evx,evy);
+	ctx.lineWidth=2;
+	ctx.strokeStyle="#33FFFF";
+	ctx.stroke();
+	//ctx.closePath();
+	
+	prevx=evx;
+	prevy=evy;*/
+	}
+	
+var powers=0;	
+
+function pointme()
+	{
+	ctx.beginPath();
+	ctx.arc(evx,evy,10,0,2*Math.PI);
+	ctx.closePath();
+	ctx.fillStyle="#33FFFF";
+	ctx.fill();
+	}
+	
+function empty()
+		{}
+
 function obsta()
 	{
 	//alert("yo");
-	if(breakit%10==0)
+	
+	
+	if(breakit%7==0)
 	{
 	var ransp=Math.floor((Math.random()*2)+1);
-	var ranx=Math.floor(Math.random()*999);
-	var rany=Math.floor(Math.random()*549);
+	var ranx=Math.floor(Math.random()*499);
+	var rany=Math.floor(Math.random()*274);
 	var ranr=Math.floor((Math.random()*2)+3);
 	
 	//alert(ranx+" "+rany+" "+ranr);
 	
 	ctx.beginPath();
-	ctx.arc(ranx,0,ranr,0,2*Math.PI);
+	ctx.arc(ranx*2,0,ranr,0,2*Math.PI);
 	ctx.closePath();
 	ctx.fillStyle="red";
 	ctx.fill();	
 	
 	ctx.beginPath();
-	ctx.arc(999,rany,ranr,0,2*Math.PI);
+	ctx.arc(499*2,rany*2,ranr,0,2*Math.PI);
 	ctx.closePath();
 	ctx.fillStyle="red";
 	ctx.fill();
 	
 	matrad[ranx][0]=ranr;
-	matrad[999][rany]=ranr;
+	matrad[499][rany]=ranr;
 	
 	matrix[ranx][0]=1;
-	matrix[999][rany]=1;
+	matrix[499][rany]=1;
 	
 	matspeed[ranx][0]=ransp;
-	matspeed[999][rany]=ransp;
+	matspeed[499][rany]=ransp;
 	}
 	
-	for(var i=0;i<1000;i++)
-		for(var j=0;j<550;j++)
-			if(matrix[i][j]==1)
+	
+	if(powers%200==0)  //POWER UPS
+		{
+		var ppx=Math.floor(Math.random()*499);
+		var ppy=Math.floor(Math.random()*274);
+		var poso=Math.random();
+		var wpp=Math.random();
+		
+		if(wpp<0.25)
+			whichp=2;
+		else if(wpp<0.5)
+			whichp=3;
+		else if(wpp<0.75)
+			whichp=4;
+		else if(wpp<1)
+			whichp=5;	
+		
+		if(poso<0.5)
+			{
+			matrix[499][ppy]=whichp;
+			matrad[499][ppy]=8;
+			matspeed[499][ppy]=1;
+			}
+		else
+			{
+			matrix[ppx][0]=whichp;
+			matrad[ppx][0]=8;
+			matspeed[ppx][0]=1;
+			}
+		}
+	
+	
+	for(var i=0;i<500;i++)
+		for(var j=0;j<275;j++)
+			if(matrix[i][j]!=0)
 				{
 				quick=matspeed[i][j];
-				if((i==0 || j==549) || (matspeed[i][j]==2 && (i==1 || j==548)))
+				if((i==0 || j==274) || (matspeed[i][j]==2 && (i==1 || j==274)))
 					{
-					ctx.clearRect(i-matrad[i][j]-1,j-matrad[i][j]-1,matrad[i][j]*2+2,matrad[i][j]*2+2);
+					ctx.clearRect((i*2)-matrad[i][j]-1,(j*2)-matrad[i][j]-1,matrad[i][j]*2+2,matrad[i][j]*2+2);
 					matrix[i][j]=0;
 					matrad[i][j]=0;
 					matspeed[i][j]=0;
 					}
 				else
 					{
-					ctx.clearRect(i-matrad[i][j]-1,j-matrad[i][j]-1,matrad[i][j]*2+2,matrad[i][j]*2+2);
-					matrix[i-quick][j+quick]=1;
+					ctx.clearRect((i*2)-matrad[i][j]-1,(j*2)-matrad[i][j]-1,matrad[i][j]*2+2,matrad[i][j]*2+2);
+					matrix[i-quick][j+quick]=matrix[i][j];
 					matrad[i-quick][j+quick]=matrad[i][j];
 					matspeed[i-quick][j+quick]=quick;
 					matrix[i][j]=0;
@@ -126,20 +268,138 @@ function obsta()
 						
 				}
 	
-	for(var i=0;i<1000;i++)
-		for(var j=0;j<550;j++)
+	for(var i=0;i<500;i++)
+		for(var j=0;j<275;j++)
 			if(matrix[i][j]==1)
 				{
 				ctx.beginPath();
-				ctx.arc(i,j,matrad[i][j],0,2*Math.PI);
+				ctx.arc(i*2,j*2,matrad[i][j],0,2*Math.PI);
 				ctx.closePath();
 				ctx.fillStyle="red";
 				ctx.fill();
 				}
+			else if(matrix[i][j]==2)
+				{
+				ctx.beginPath();
+				ctx.arc(i*2,j*2,matrad[i][j],0,2*Math.PI);
+				ctx.closePath();
+				ctx.fillStyle="green";
+				ctx.fill();
+				}
+			else if(matrix[i][j]==3)
+				{
+				ctx.beginPath();
+				ctx.arc(i*2,j*2,matrad[i][j],0,2*Math.PI);
+				ctx.closePath();
+				ctx.fillStyle="blue";
+				ctx.fill();
+				}	
+			else if(matrix[i][j]==4)
+				{
+				ctx.beginPath();
+				ctx.arc(i*2,j*2,matrad[i][j],0,2*Math.PI);
+				ctx.closePath();
+				ctx.fillStyle="white";
+				ctx.fill();
+				}
+			else if(matrix[i][j]==5)
+				{
+				ctx.beginPath();
+				ctx.arc(i*2,j*2,matrad[i][j],0,2*Math.PI);
+				ctx.closePath();
+				ctx.fillStyle="yellow";
+				ctx.fill();
+				}		
+				
+			/*ctx.beginPath();
+			ctx.arc(evx,evy,5,0,2*Math.PI);
+			ctx.fillStyle="#33FFFF";
+			ctx.fill();
+			ctx.closePath();			
+			}	*/
+	
+	var xxx=Math.floor(evx);
+	var yyy=Math.floor(evy);
+	//xxx=xxx;
+	//yyy=yyy/2;
+	
+	for(var kq=xxx-4;kq<=xxx+4;kq++)   //hit
+	for(var jq=yyy-4;jq<=yyy+4;jq++)
+	if(matrix[Math.floor(kq/2)][Math.floor(jq/2)]==1)
+		{
+		overg=1;
+		clearTimeout(zob);
+		//document.onmousemove=empty;
+		document.getElementById("start").innerHTML="GAME OVER";
+		document.getElementById("start").style.display="block";
+		document.getElementById("start").onclick=empty;
+		break;
+		}
+	else if(matrix[Math.floor(kq/2)][Math.floor(jq/2)]==2)
+		{
+		whichps=2; //slow
+		pgreen=40;
+		break;
+		}
+	else if(matrix[Math.floor(kq/2)][Math.floor(jq/2)]==3)
+		{
+		whichps=3; //fast
+		pgreen=10;
+		break;
+		}
+	else if(matrix[Math.floor(kq/2)][Math.floor(jq/2)]==4)
+		{
+		whichps=4;  //death
+		overg=1;
+		document.getElementById("start").innerHTML="GAME OVER";
+		document.getElementById("start").style.display="block";
+		document.getElementById("start").onclick=empty;
+		clearTimeout(zob);
+		//document.onmousemove=empty;
+		}
+	else if(matrix[Math.floor(kq/2)][Math.floor(jq/2)]==5)
+		{
+		whichps=5; 	 //trying was waste
+		break;
+		}
+		
+	/*for(var kv=0;kv<500;kv++)
+	for(var jv=0;jv<275;jv++)
+	if(matrix[kv][jv]==1)// && (evx/2)==kv && (evy/2)==jv)
+		{
+		for(var m=kv-4;m<kv+4;m++)
+		for(var n=jv-4;n<jv+4;n++)
+			if((xxx/2)==m && (yyy/2)==n)
+			{
+			overg=1;
+			clearTimeout(zob);
+			}
+		}	
+	else if(matrix[kv][jv]==2 && (xxx/2)==kv && (yyy/2)==jv)
+		{
+		//document.getElementById("start").style.display="block";
+		pgreen=40;
+		}*/
 
+	powers++;	
 	breakit++;
-	setTimeout(function(){obsta()},10);
-	}
+	
+	if(whichps!=0)
+		{
+		powertime++;
+		}
+		
+	if(powertime==100)
+		{
+		powertime=0;
+		pgreen=20;
+		whichp=0;
+		whichps=0;
+		}
+		
+	if(overg==0)
+		zob=setTimeout(function(){obsta()},pgreen);   //speed
+ 	}
 
 </script>
 
