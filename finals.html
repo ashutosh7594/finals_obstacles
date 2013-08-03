@@ -1,0 +1,146 @@
+<html>
+
+<head>
+<!--FROM ASH RISES THE WORLD 3/8/13 0840-->
+</head>
+
+<style>
+
+#my{
+	position: absolute;
+	left: 185px;
+	top: 55px;
+	background-color: black;
+	border-radius: 20px;
+	}
+
+</style>
+
+
+<body BGcolor="#202020">
+
+<canvas id="my" width="1000" height="550" style="border: 5px solid #404040;">
+</canvas>
+<div id="yo"></div>
+
+</body>
+
+
+<script>
+
+window.onload=obsta;
+
+var matrix=new Array(1000);
+for(var i=0;i<1000;i++)
+matrix[i]=new Array(550);
+
+var matrad=new Array(1000);
+for(var i=0;i<1000;i++)
+matrad[i]=new Array(550);
+
+var matspeed=new Array(1000);
+for(var i=0;i<1000;i++)
+matspeed[i]=new Array(550);
+
+for(var i=0;i<1000;i++)
+	for(var j=0;j<550;j++)
+		matrad[i][j]=0;
+
+for(var i=0;i<1000;i++)
+	for(var j=0;j<550;j++)
+		matrix[i][j]=0;
+		
+for(var i=0;i<1000;i++)
+	for(var j=0;j<550;j++)
+		matspeed[i][j]=0;		
+
+var evx=0;
+var evy=0;
+
+document.onmousemove=function(evt)
+	{
+    document.getElementById("yo").innerHTML=evt.clientX + ',' + evt.clientY;
+	}
+	
+var breakit=0;	
+var myc=document.getElementById("my");
+var ctx=myc.getContext("2d");
+var quick=0;
+
+function obsta()
+	{
+	//alert("yo");
+	if(breakit%10==0)
+	{
+	var ransp=Math.floor((Math.random()*2)+1);
+	var ranx=Math.floor(Math.random()*999);
+	var rany=Math.floor(Math.random()*549);
+	var ranr=Math.floor((Math.random()*2)+3);
+	
+	//alert(ranx+" "+rany+" "+ranr);
+	
+	ctx.beginPath();
+	ctx.arc(ranx,0,ranr,0,2*Math.PI);
+	ctx.closePath();
+	ctx.fillStyle="red";
+	ctx.fill();	
+	
+	ctx.beginPath();
+	ctx.arc(999,rany,ranr,0,2*Math.PI);
+	ctx.closePath();
+	ctx.fillStyle="red";
+	ctx.fill();
+	
+	matrad[ranx][0]=ranr;
+	matrad[999][rany]=ranr;
+	
+	matrix[ranx][0]=1;
+	matrix[999][rany]=1;
+	
+	matspeed[ranx][0]=ransp;
+	matspeed[999][rany]=ransp;
+	}
+	
+	for(var i=0;i<1000;i++)
+		for(var j=0;j<550;j++)
+			if(matrix[i][j]==1)
+				{
+				quick=matspeed[i][j];
+				if((i==0 || j==549) || (matspeed[i][j]==2 && (i==1 || j==548)))
+					{
+					ctx.clearRect(i-matrad[i][j]-1,j-matrad[i][j]-1,matrad[i][j]*2+2,matrad[i][j]*2+2);
+					matrix[i][j]=0;
+					matrad[i][j]=0;
+					matspeed[i][j]=0;
+					}
+				else
+					{
+					ctx.clearRect(i-matrad[i][j]-1,j-matrad[i][j]-1,matrad[i][j]*2+2,matrad[i][j]*2+2);
+					matrix[i-quick][j+quick]=1;
+					matrad[i-quick][j+quick]=matrad[i][j];
+					matspeed[i-quick][j+quick]=quick;
+					matrix[i][j]=0;
+					matrad[i][j]=0;
+					matspeed[i][j]=0;
+					}
+						
+				}
+	
+	for(var i=0;i<1000;i++)
+		for(var j=0;j<550;j++)
+			if(matrix[i][j]==1)
+				{
+				ctx.beginPath();
+				ctx.arc(i,j,matrad[i][j],0,2*Math.PI);
+				ctx.closePath();
+				ctx.fillStyle="red";
+				ctx.fill();
+				}
+
+	breakit++;
+	setTimeout(function(){obsta()},10);
+	}
+
+</script>
+
+</html>
